@@ -1,0 +1,28 @@
+#!/bin/bash
+row=`df -h -P|wc -l`
+status=0
+for i in `seq 2 $row`
+do
+        spare=`df -h -P|sed -n "$i"p|awk '{print $4}'`
+        use_percentage=`df -h -P|sed -n "$i"p|sed -n "s/\%//"p|awk '{print $5}'`
+        spare_percentage=`expr 100 - $use_percentage`
+        partition_name=`df -h -P|sed -n "$i"p|awk '{print $6}'`
+        if [ "$spare_percentage" -lt "3"  ];then
+                echo -n "$partition_name CRITICAL ${spare_percentage}% $spare  "
+                status[$i]=2
+        elif [ "$spare_percentage" -lt "5" ];then
+                echo -n  "$partition_name WARNING! ${spare_percentage}% $spare  "
+                status[$i]=1
+        else
+                echo -n  "$partition_name OK ${spare_percentage}% $spare  "
+                status[$i]=0
+        fi
+done
+zhuangtai=0
+for j in `seq 2 $row`
+do
+        if [ "${status[$j]}" -gt "$zhuangtai"  ];then
+                zhuangtai=${status[$j]}
+        fi
+done
+exit $zhuangtai
