@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nacos-mysql-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /nfsdata #执行yaml之前记得在exports文件中暴露该文件地址，以及重启nfs服务
+    server: 192.168.0.118

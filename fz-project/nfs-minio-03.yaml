@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fz-dev-minio
+  namespace: mingy-fz-project1
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  serviceName: "fz-minio-svc"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: container-minio
+        image: quay.io/minio/minio:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "0.3"
+            memory: 128Mi
+          requests:
+            cpu: "0.1"
+            memory: 128Mi
+        command:
+        - /bin/bash
+        - -c
+        args:
+        - minio server /data --console-address :9090
+        volumeMounts:
+        - mountPath: /data
+          name: localvolume
+          subPath: fz-minio
+  volumeClaimTemplates:
+  - metadata:
+      name: localvolume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "nfs"
+      resources:
+        requests:
+          storage: 80Gi

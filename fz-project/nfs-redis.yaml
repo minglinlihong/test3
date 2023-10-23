@@ -1,0 +1,126 @@
+## 参考链接：https://blog.csdn.net/CancerKing/article/details/119892278
+## configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-conf
+  namespace: mingy-fz-project1
+data:
+  redis.conf: |-
+        bind 0.0.0.0
+        port 6379
+        requirepass REz^(i1cUcTF5PUOJhGY
+        appendonly yes
+        cluster-config-file nodes-6379.conf
+        pidfile /redis/log/redis-6379.pid
+        cluster-config-file /redis/conf/redis.conf
+        dir /redis/data/
+        logfile /redis/log/redis-6379.log
+        cluster-node-timeout 5000
+        protected-mode no
+        maxmemory-policy volatile-ttl
+        maxmemory-samples 5
+        maxmemory 1gb
+---
+## pv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fz-redis-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+
+---
+## pvc
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fz-redis-pvc
+  namespace: mingy-fz-project1
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfs
+  volumeMode: Filesystem
+  volumeName: fz-redis-pv
+---
+## pod
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: mingy-fz-project1
+spec:
+  selector:
+    matchLabels:
+      name: redis
+  serviceName: 'redis'
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: redis
+    spec:
+      initContainers:
+      - name: init-redis
+        image: busybox:latest
+        command: ['sh', '-c', 'mkdir -p /redis/log/;mkdir -p /redis/conf/;mkdir -p /redis/data/']
+        volumeMounts:
+        - name: redis-volume
+          mountPath: /redis/
+          subPath: fz-redis
+      containers:
+      - name: redis
+        image: redis:5.0.6
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh
+        - -c
+        - "exec redis-server /redis/conf/redis.conf"
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        volumeMounts:
+        - name: redis-config
+          mountPath: /redis/conf/
+        - name: redis-volume
+          mountPath: /redis/
+          subPath: fz-redis
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-conf
+      - name: redis-volume
+        persistentVolumeClaim:
+          claimName: fz-redis-pvc
+
+
+---
+## svc
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    name: redis
+  name: redis
+  namespace: mingy-fz-project1
+spec:
+  type: NodePort
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    nodePort: 30022
+  selector:
+    name: redis

@@ -1,0 +1,98 @@
+## broker a
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rocketmq-broker-a
+  namespace: zdevops
+data:
+  BROKER_MEM: ' -Xms2g -Xmx2g -Xmn1g '
+  broker-common.conf: |-
+    brokerClusterName=DefaultCluster
+    brokerName=broker-a
+    brokerId=0
+    deleteWhen=04
+    fileReservedTime=48
+    brokerRole=ASYNC_MASTER
+    flushDiskType=ASYNC_FLUSH
+    brokerIP1 = 192.168.0.70
+    #Broker 对外服务的监听端口
+    listenPort=10931
+    ##主要用于slave同步master
+    fastListenPort=10939
+    ##haService中使用
+    haListenPort=10932
+
+---
+## broker a -s
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rocketmq-broker-a-s
+  namespace: zdevops
+data:
+  BROKER_MEM: ' -Xms2g -Xmx2g -Xmn1g '
+  broker-common.conf: |-
+    brokerClusterName=DefaultCluster
+    brokerName=broker-a
+    brokerId=1
+    deleteWhen=04
+    fileReservedTime=48
+    brokerRole=SLAVE
+    flushDiskType=ASYNC_FLUSH
+    brokerIP1 = 192.168.0.71
+    #Broker 对外服务的监听端口
+    listenPort=10941
+    ##主要用于slave同步master
+    fastListenPort=10949
+    ##haService中使用
+    haListenPort=10942
+---
+## broker b
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rocketmq-broker-b
+  namespace: zdevops
+data:
+  BROKER_MEM: ' -Xms2g -Xmx2g -Xmn1g '
+  broker-common.conf: |-
+    brokerClusterName=DefaultCluster
+    brokerName=broker-b
+    brokerId=0
+    deleteWhen=04
+    fileReservedTime=48
+    brokerRole=ASYNC_MASTER
+    flushDiskType=ASYNC_FLUSH
+    brokerIP1 = 192.168.0.70
+    #Broker 对外服务的监听端口
+    listenPort=10951
+    ##主要用于slave同步master
+    fastListenPort=10959
+    ##haService中使用
+    haListenPort=10952
+
+---
+## broker b-s
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: rocketmq-broker-b-s
+  namespace: zdevops
+data:
+  BROKER_MEM: ' -Xms2g -Xmx2g -Xmn1g '
+  broker-common.conf: |-
+    brokerClusterName=DefaultCluster
+    brokerName=broker-b
+    brokerId=1
+    deleteWhen=04
+    fileReservedTime=48
+    brokerRole=SLAVE
+    flushDiskType=ASYNC_FLUSH
+    brokerIP1 = 192.168.0.71
+    #Broker 对外服务的监听端口
+    listenPort=10961
+    ##主要用于slave同步master
+    fastListenPort=10969
+    ##haService中使用
+    haListenPort=10962
+

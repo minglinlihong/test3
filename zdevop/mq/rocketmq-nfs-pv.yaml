@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-namesrv01
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-namesrv02
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-broker01
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-broker02
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-broker03
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zdevops-mq-broker04
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70

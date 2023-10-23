@@ -1,0 +1,85 @@
+#vsftpd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: ly-vsftpd-pv
+  namespace: ly01
+spec:
+  accessModes:
+    - ReadWriteOnce      
+  capacity:
+    storage: 50Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: /data
+    server: 192.168.0.70
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ly-vsftpd-pvc
+  namespace: ly01
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: nfs 
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ftp
+  name: ly-vsftpd
+  namespace: ly01
+spec:
+  selector:
+    matchLabels:
+      app: ftp
+  template:
+    metadata:
+      labels:
+        app: ftp
+    spec:
+      #使用本地服务器端口
+      hostNetwork: true
+      containers:
+      - name: ftp-container
+        image: fauria/vsftpd
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 21
+        - containerPort: 31110
+        - containerPort: 31111
+        - containerPort: 31112
+        - containerPort: 31113
+        - containerPort: 31114
+        - containerPort: 31115
+        env:
+        - name: FTP_USER
+          value: "admin"
+        - name: FTP_PASS
+          value: "Admin&12345"
+        - name: PASV_MIN_PORT
+          value: "31110"
+        - name: PASV_MAX_PORT
+          value: "31115"
+        #走公网的填写公网IP，内网注释掉改部分，取消下面注释的自动获取方法
+        # - name: PASV_ADDRESS
+        #   value: 10.0.1.133
+        - name: PASV_ADDRESS
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+          - name: vsftpd-storage
+            mountPath: /home/vsftpd/admin
+            subPath: ly-vsftpd
+      volumes:
+      - name: vsftpd-storage
+        persistentVolumeClaim:
+          claimName: ly-vsftpd-pvc

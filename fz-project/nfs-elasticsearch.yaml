@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    run: elasticsearch
+  name: fz-dev-elasticsearch
+  namespace: mingy-fz-project1
+spec:
+  serviceName: "fz-elasticsearch-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      run: elasticsearch
+  template:
+    metadata:
+      labels:
+        run: elasticsearch
+    spec:
+      containers:
+      - env:
+        - name: discovery.type
+          value: single-node
+        image: elasticsearch:7.17.13
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          name: db
+          protocol: TCP
+        - containerPort: 9300
+          name: tramsport
+          protocol: TCP
+
+        env:
+        - name: ES_JAVA_OPTS
+          value: -Xms512m -Xmx512m
+        - name: bootstrap.memory_lock
+          value: "true"
+        - name: discovery.type
+          value: single-node
+        - name: node.name
+          value: node-1
+        - name: TAKE_FILE_OWNERSHIP #此环境变量是防止没有宿主机的777权限，value随便写，在nfs可以忽略，普通docker或者docker-swarm单机启动需要加
+          value: "1111"
+         # 下面是开启es验证的相关配置
+        - name: http.cors.allow-headers
+          value: Authorization
+        - name: xpack.security.enabled
+          value: "true"
+        - name: xpack.security.transport.ssl.enabled
+          value: "true"
+        - name: network.host
+          value: "0.0.0.0"
+
+        volumeMounts:
+        - name: fz-es
+          mountPath: /usr/share/elasticsearch/data
+          subPath: fz-es
+  volumeClaimTemplates:
+  - metadata:
+      name: fz-es
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "nfs"
+      resources:
+        requests:
+          storage: 60Gi

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ly-dev-mysql57
+  namespace: ly01
+spec:
+  selector:
+    matchLabels:
+      app: mysql57
+  serviceName: "ly-mysql-svc"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql57
+    spec:
+      containers:
+        - name: ly-container-mysql57
+          image: mysql:5.7
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          ports:
+            - name: db
+              containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "LY-dev-mysql57"  #数据库密码
+          volumeMounts:
+            - name: mysql57-volume          
+              mountPath: /var/lib/mysql
+              subPath: ly-mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql57-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "nfs"
+      resources:
+        requests:
+          storage: 335Gi

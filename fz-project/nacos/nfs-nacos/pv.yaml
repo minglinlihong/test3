@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nacos-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /nfsdata #存储卷的实际位置，与nfs暴露的文件地址相同
+    server: 192.168.0.118 #nfs服务器的ip地址

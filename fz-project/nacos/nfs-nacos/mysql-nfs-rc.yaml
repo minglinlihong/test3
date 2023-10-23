@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+spec:
+  replicas: 1
+  selector:
+    name: mysql
+  template:
+    metadata:
+      labels:
+        name: mysql
+    spec:
+      containers:
+      - name: mysql
+        #指定版本号的镜像拉取策略默认为IfNotPresent
+        image: nacos/nacos-mysql:5.7
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-data #需和下面volumes中的name相同
+          mountPath: /var/lib/mysql
+          subPath: nacos-mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD #root用户密码
+          value: "123123" #value均可以自定义
+        - name: MYSQL_DATABASE #database名称
+          value: "nacos_devtest"
+        - name: MYSQL_USER #用户名
+          value: "nacos"
+        - name: MYSQL_PASSWORD #用户密码
+          value: "123123"
+      volumes:
+      - name: mysql-data #命名和pvc.yaml里的命名相同
+        nfs:
+          server: 192.168.0.118 #nfs服务器地址
+          path: /nfsdata #nfs暴露的文件
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    name: mysql

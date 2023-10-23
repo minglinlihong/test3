@@ -1,0 +1,24 @@
+#特别强调一点，k8s的版本不同ingress配置的一些细节不同，具体可以看看官网，
+#我展示的配置信息，只能保证1.23.1版本的k8s可以使用。
+#nacos-k8s里也有ingress的配置，可以参考一下
+#./nacos-k8s/deploy/nacos/nacos-no-pvc-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nacos-ingress-http
+  labels:
+    nacos: ingress-http
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: nacos.yufang.com #自定义,ingress规定只能使用域名，没有的可以去修改host文件
+    http:
+      paths:
+      - path: / #自定义,建议就这样，不然在springCloud服务注册时报错405
+        pathType: Prefix #必须配置匹配策略
+        backend:
+          service: 
+            name: nacos-headless
+            port: 
+              number: 8848
